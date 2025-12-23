@@ -1,0 +1,25 @@
+# This script is used to activate the virtual environment in PowerShell.
+# Save it as: .venv\Scripts\Activate.ps1
+
+function global:deactivate {
+    # Reset environment variables
+    if (Test-Path variable:VIRTUAL_ENV) {
+        Remove-Item variable:VIRTUAL_ENV -Force
+    }
+    $env:PATH = $env:PATH.Replace("$env:VIRTUAL_ENV\Scripts;", "")
+    Write-Output "Virtual environment deactivated."
+}
+
+# Set environment variable for venv path
+$env:VIRTUAL_ENV = (Split-Path -Parent $MyInvocation.MyCommand.Definition)
+
+# Prepend venv Scripts folder to PATH
+$env:PATH = "$env:VIRTUAL_ENV;" + $env:PATH
+
+# Change prompt to show venv name
+function global:prompt {
+    Write-Host "(.venv)" -NoNewline -ForegroundColor Green
+    return " PS " + (Get-Location) + "> "
+}
+
+Write-Output "Activated virtual environment at $env:VIRTUAL_ENV"

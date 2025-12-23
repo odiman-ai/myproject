@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test User Registration</title>
+    <style>
+        body { font-family: Arial; max-width: 500px; margin: 50px auto; padding: 20px; }
+        input { width: 100%; padding: 10px; margin: 10px 0; }
+        button { width: 100%; padding: 12px; background: #4CAF50; color: white; border: none; cursor: pointer; }
+        button:hover { background: #45a049; }
+        #result { margin-top: 20px; padding: 15px; border-radius: 5px; }
+        .success { background: #d4edda; color: #155724; }
+        .error { background: #f8d7da; color: #721c24; }
+    </style>
+</head>
+<body>
+    <h2>Test User Registration</h2>
+    <form id="testForm">
+        <input type="text" id="username" placeholder="Username" required>
+        <input type="email" id="email" placeholder="Email" required>
+        <input type="password" id="password" placeholder="Password" required>
+        <input type="text" id="fullName" placeholder="Full Name">
+        <input type="tel" id="phone" placeholder="Phone Number">
+        <button type="submit">Register User</button>
+    </form>
+    <div id="result"></div>
+
+    <script>
+        document.getElementById('testForm').addEventListener('submit', async function(e) {
+            e.preventDefault();
+            
+            const userData = {
+                username: document.getElementById('username').value,
+                email: document.getElementById('email').value,
+                password: document.getElementById('password').value,
+                full_name: document.getElementById('fullName').value,
+                phone: document.getElementById('phone').value
+            };
+            
+            try {
+                const response = await fetch('api_add_user.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(userData)
+                });
+                
+                const data = await response.json();
+                const resultDiv = document.getElementById('result');
+                
+                if (data.success) {
+                    resultDiv.className = 'success';
+                    resultDiv.innerHTML = '✅ ' + data.message + '<br>User ID: ' + data.user_id;
+                    document.getElementById('testForm').reset();
+                } else {
+                    resultDiv.className = 'error';
+                    resultDiv.innerHTML = '❌ ' + data.message;
+                }
+            } catch (error) {
+                document.getElementById('result').className = 'error';
+                document.getElementById('result').innerHTML = '❌ Error: ' + error.message;
+            }
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Database Application</title>
+    <link rel="stylesheet" href="mystyle.css">
+</head>
+<body>
+    <h1>User Management System</h1>
+    
+    <!-- Registration Form -->
+    <div class="form-container">
+        <h2>Register User</h2>
+        <input type="text" id="username" placeholder="Username">
+        <input type="email" id="email" placeholder="Email">
+        <input type="password" id="password" placeholder="Password">
+        <button id="registerBtn">Register</button>
+    </div>
+    
+    <!-- Display Users -->
+    <div>
+        <h2>All Users</h2>
+        <button id="loadUsersBtn">Load Users</button>
+        <div id="usersContainer"></div>
+    </div>
+    
+    <script src="script.js"></script>
+</body>
+</html>
+```
+
+---
+
+## **Step 8: Test Your Setup**
+
+1. **Access your application:**
+   - Open browser: `http://localhost/myproject/`
+
+2. **Test database connection:**
+   - Visit: `http://localhost/myproject/db_connect.php`
+   - Should see "Connected successfully"
+
+3. **Test registration:**
+   - Fill form and click Register
+   - Check phpMyAdmin to see if user was added
+
+4. **Test data retrieval:**
+   - Click "Load Users" button
+   - Should display registered users
+
+---
+
+## **Your Final Project Structure:**
+```
+C:\xampp\htdocs\myproject\
+├── index.html          (your existing file)
+├── mystyle.css         (your existing file)
+├── script.js           (updated with DB functions)
+├── db_connect.php      (new - database connection)
+├── register.php        (new - user registration)
+├── get_users.php       (new - fetch users)
+├── login.php           (optional)
+├── delete_user.php     (optional)
+└── update_user.php     (optional)

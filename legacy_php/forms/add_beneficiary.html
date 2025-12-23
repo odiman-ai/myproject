@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Add Beneficiary</title>
+</head>
+<body>
+  <h2>Register New Beneficiary</h2>
+  <form id="beneficiaryForm">
+    <input type="text" name="name" placeholder="Name" required><br>
+    <input type="date" name="dob" required><br>
+    <select name="gender">
+      <option>Male</option>
+      <option>Female</option>
+      <option>Other</option>
+    </select><br>
+    <input type="text" name="location" placeholder="Location" required><br>
+    <input type="number" name="program_id" placeholder="Program ID (optional)"><br>
+    <button type="submit">Submit</button>
+  </form>
+
+  <script>
+    document.getElementById('beneficiaryForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const formData = new FormData(this);
+      const data = Object.fromEntries(formData.entries());
+
+      fetch('create_beneficiary.php', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(data)
+      })
+      .then(res => res.json())
+      .then(response => {
+        alert(response.status === 'success' ? 'Beneficiary added!' : 'Error: ' + response.message);
+      });
+    });
+  </script>
+</body>
+</html>
