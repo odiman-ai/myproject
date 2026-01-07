@@ -1,0 +1,53 @@
+{
+  "info": {
+    "name": "SPMS API (Auth, Users, Core)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [{ "key": "base", "value": "http://127.0.0.1:8000" }, { "key": "token", "value": "" }],
+  "item": [
+    {
+      "name": "Auth Register",
+      "request": {
+        "method": "POST",
+        "header": [{"key":"Content-Type","value":"application/json"}],
+        "body": {"mode":"raw","raw":"{\"username\":\"admin\",\"password\":\"ChangeMe123\",\"role\":\"admin\"}"},
+        "url": {"raw":"{{base}}/api/auth/register"}
+      }
+    },
+    {
+      "name": "Auth Login",
+      "request": {
+        "method": "POST",
+        "header": [{"key":"Content-Type","value":"application/json"}],
+        "body": {"mode":"raw","raw":"{\"username\":\"admin\",\"password\":\"ChangeMe123\"}"},
+        "url": {"raw":"{{base}}/api/auth/login"}
+      }
+    },
+    {
+      "name": "Users List",
+      "request": {
+        "method": "GET",
+        "header": [{"key":"Authorization","value":"Bearer {{token}}"}],
+        "url": {"raw":"{{base}}/api/users"}
+      }
+    },
+    {
+      "name": "Programmes Create",
+      "request": {
+        "method": "POST",
+        "header": [{"key":"Authorization","value":"Bearer {{token}}"},{"key":"Content-Type","value":"application/json"}],
+        "body": {"mode":"raw","raw":"{\"name\":\"WASH\",\"description\":\"Water, sanitation and hygiene\"}"},
+        "url": {"raw":"{{base}}/api/programmes"}
+      }
+    },
+    {
+      "name": "Projects Create",
+      "request": {
+        "method": "POST",
+        "header": [{"key":"Authorization","value":"Bearer {{token}}"},{"key":"Content-Type","value":"application/json"}],
+        "body": {"mode":"raw","raw":"{\"name\":\"Karenga Boreholes\",\"programme_id\":1}"},
+        "url": {"raw":"{{base}}/api/projects"}
+      }
+    }
+  ]
+}

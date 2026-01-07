@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html>
+    <button onclick="logout()" style="float:right;">Logout</button>
+    <section>
+  <h2>Login</h2>
+  <form id="loginForm">
+    <input type="text" name="username" placeholder="Username" required>
+    <input type="password" name="password" placeholder="Password" required>
+    <button type="submit">Login</button>
+  </form>
+</section>
+<head>
+  <title>Beneficiary Management Dashboard</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    h2, h3 { color: #2c3e50; }
+    section { margin-bottom: 40px; }
+    input, select, textarea, button { margin: 5px 0; padding: 8px; width: 100%; max-width: 400px; }
+    .program-card { border: 1px solid #ccc; padding: 10px; margin-bottom: 10px; }
+    table { border-collapse: collapse; width: 100%; max-width: 600px; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: left; }
+  </style>
+</head>
+<body>
+
+  <!-- Beneficiary Registration -->
+  <section>
+    <h2>Register Beneficiary</h2>
+    <form id="beneficiaryForm">
+      <input type="text" name="name" placeholder="Name" required>
+      <input type="date" name="dob" required>
+      <select name="gender">
+        <option>Male</option>
+        <option>Female</option>
+        <option>Other</option>
+      </select>
+      <input type="text" name="location" placeholder="Location" required>
+      <input type="number" name="program_id" placeholder="Program ID (optional)">
+      <button type="submit">Add Beneficiary</button>
+    </form>
+  </section>
+
+  <!-- Program Creation -->
+  <section>
+    <h2>Create Program</h2>
+    <form id="programForm">
+      <input type="text" name="name" placeholder="Program Name" required>
+      <textarea name="description" placeholder="Description"></textarea>
+      <input type="number" name="eligibility_age_min" placeholder="Min Age" required>
+      <input type="number" name="eligibility_age_max" placeholder="Max Age" required>
+      <input type="text" name="location" placeholder="Location" required>
+      <input type="number" step="0.01" name="income_threshold" placeholder="Income Threshold">
+      <button type="submit">Create Program</button>
+    </form>
+  </section>
+
+  <!-- Program Enrollment -->
+  <section>
+    <h2>Program Enrollment</h2>
+    <label for="beneficiary_id">Select Beneficiary:</label>
+    <select id="beneficiary_id"></select>
+    <button onclick="loadEligiblePrograms()">Check Eligibility</button>
+
+    <div id="eligible_programs"></div>
+
+    <h3>Enrollment History</h3>
+    <table id="enrollment_history">
+      <thead><tr><th>Program</th><th>Status</th><th>Date</th></tr></thead>
+      <tbody></tbody>
+    </table>
+  </section>
+
+  <script>
+    // Load beneficiaries into dropdown
+    function loadBeneficiaries() {
+      fetch('get_beneficiaries.php')
+        .then(res => res.json())
+        .then(data => {
+          const select = document.getElementById('beneficiary_id');
+          select.innerHTML = '';
+          data.forEach(b => {
+            const option = document.createElement('option');
+            option.value = b.id;
+            option.textContent = b.name;
+            select.appendChild(option);
+          });
+        });
+    }
+
+    // Add beneficiary
+    document.getElementById('beneficiaryForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const formData = new FormData(this);
+      const data = Object.fromEntries(formData.entries());
+
+      fetch('create_beneficiary.php', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(data)
+      })
+      .then(res => res.json())
+      .then(response => {
+        alert(response.status === 'success' ? 'Beneficiary added!' : 'Error: ' + response.message);
+        loadBeneficiaries();
+      });
+    });
+
+    // Add program
+    document.getElementById('programForm').addEventListener('submit', function(e) {
+      e.preventDefault();
+      const formData = new FormData(this);
+      const data = Object.fromEntries(formData.entries());
+
+      fetch('create_program.php', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(data)
+      })
+      .then(res => res.json())
+      .then(response => {
+        alert(response.status === 'success' ? 'Program created!' : 'Error: ' + response.message);
+      });
+    });
+
+    // Load eligible programs
+    function loadEligiblePrograms() {
+      const id = document.getElementById('beneficiary_id').value;
+      fetch(`check_eligibility.php?id=${id}`)
+        .then(res => res.json())
+        .then(programs => {
+          const container = document.getElementById('eligible_programs');
+          container.innerHTML = '<h3>Eligible Programs</h3>';
+          programs.forEach(p => {
+            const div = document.createElement('div');
+            div.className = 'program-card';
+            div.innerHTML = `
+              <strong>${p.name}</strong><br>
+              ${p.description}<br>
+              <button onclick="enroll(${id}, ${p.id})">Enroll</button>
+            `;
+            container.appendChild(div);
+          });
+        });
+
+      loadEnrollmentHistory(id);
+    }
+
+    // Enroll beneficiary
+    function enroll(beneficiaryId, programId) {
+      fetch('enroll_beneficiary.php', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({beneficiary_id: beneficiaryId, program_id: programId})
+      })
+      .then(res => res.json())
+      .then(response => {
+        alert(response.status === 'success' ? 'Enrollment successful!' : 'Error: ' + response.message);
+        loadEnrollmentHistory(beneficiaryId);
+      });
+    }
+
+    // Load enrollment history
+    function loadEnrollmentHistory(beneficiaryId) {
+      fetch(`get_enrollments.php?id=${beneficiaryId}`)
+        .then(res => res.json())
+        .then(data => {
+          const tbody = document.querySelector('#enrollment_history tbody');
+          tbody.innerHTML = '';
+          data.forEach(row => {
+            const tr = document.createElement('tr');
+            tr.innerHTML = `<td>${row.name}</td><td>${row.status}</td><td>${row.enrollment_date}</td>`;
+            tbody.appendChild(tr);
+          });
+        });
+    }
+
+    // Initial load
+    loadBeneficiaries();
+  </script>
+
+</body>
+</html>

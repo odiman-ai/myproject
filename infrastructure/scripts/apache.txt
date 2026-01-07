@@ -1,0 +1,2 @@
+sudo systemctl start apache2   # Ubuntu
+sudo systemctl start httpd     # Amazon Linux

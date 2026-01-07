@@ -1,22 +1,45 @@
-﻿# Python
+# Environment
+.env
+.env.local
+.env.production
+*.env
+
+# Python
 __pycache__/
+*.py[cod]
+*$py.class
 *.pyc
 *.pyo
 *.pyd
-spms_dev.db
-*.db
-*.db-shm
-*.db-wal
-
-# Node / frontend
-node_modules/
-dist/
+.Python
+env/
+venv/
+.venv/
+.venv311/
+ENV/
 build/
-frontend/node_modules/
-frontend/dist/
+dist/
+*.egg-info/
+.eggs/
+*.egg
 
-# Editor / OS
+# Database
+*.db
+*.sqlite3
+*.sqlite
+
+# IDEs
 .vscode/
 .idea/
+*.swp
+*.swo
+*~
+
+# OS
 .DS_Store
-.env
+Thumbs.db
+desktop.ini
+
+# Logs
+*.log
+logs/

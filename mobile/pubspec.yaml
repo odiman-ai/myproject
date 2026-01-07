@@ -1,0 +1,9 @@
+dependencies:
+  flutter:
+    sdk: flutter
+  http: ^0.13.5
+  shared_preferences: ^2.0.15
+  local_auth: ^2.1.6
+  image_picker: ^0.8.7+4
+  camera: ^0.10.0+4
+  flutter_form_builder: ^7.6.0

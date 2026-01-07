@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SPMS Connection Test</title>
+  <link rel="icon" type="image/png" href="src/images/logo.png">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 40px 20px;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      overflow: hidden;
+    }
+
+    .header {
+      background: linear-gradient(135deg, #0b6e6b, #095a58);
+      padding: 32px;
+      text-align: center;
+      color: white;
+    }
+
+    .header h1 {
+      font-size: 32px;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+    }
+
+    .header p {
+      opacity: 0.9;
+      font-size: 16px;
+    }
+
+    .content {
+      padding: 32px;
+    }
+
+    .test-section {
+      margin-bottom: 32px;
+      padding: 24px;
+      background: #f8f9fa;
+      border-radius: 12px;
+      border-left: 4px solid #dee2e6;
+      transition: all 0.3s;
+    }
+
+    .test-section.passed {
+      border-left-color: #28a745;
+      background: #d4edda;
+    }
+
+    .test-section.failed {
+      border-left-color: #dc3545;
+      background: #f8d7da;
+    }
+
+    .test-section.pending {
+      border-left-color: #ffc107;
+      background: #fff3cd;
+    }
+
+    .test-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+
+    .test-title {
+      font-size: 20px;
+      font-weight: 600;
+      color: #333;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .status-badge {
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .status-badge.passed {
+      background: #28a745;
+      color: white;
+    }
+
+    .status-badge.failed {
+      background: #dc3545;
+      color: white;
+    }
+
+    .status-badge.pending {
+      background: #ffc107;
+      color: #333;
+    }
+
+    .status-badge.testing {
+      background: #17a2b8;
+      color: white;
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.6; }
+    }
+
+    .test-description {
+      color: #666;
+      margin-bottom: 12px;
+      font-size: 14px;
+    }
+
+    .test-button {
+      width: 100%;
+      padding: 12px 24px;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .test-button:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+
+    .test-button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .test-result {
+      margin-top: 16px;
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 14px;
+      display: none;
+    }
+
+    .test-result.show {
+      display: block;
+    }
+
+    .test-result.success {
+      background: #d4edda;
+      color: #155724;
+      border: 1px solid #c3e6cb;
+    }
+
+    .test-result.error {
+      background: #f8d7da;
+      color: #721c24;
+      border: 1px solid #f5c6cb;
+    }
+
+    .test-result.info {
+      background: #d1ecf1;
+      color: #0c5460;
+      border: 1px solid #bee5eb;
+    }
+
+    .input-group {
+      margin-bottom: 16px;
+    }
+
+    .input-group label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 600;
+      color: #333;
+      font-size: 14px;
+    }
+
+    .input-group input {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #dee2e6;
+      border-radius: 8px;
+      font-size: 16px;
+      transition: border-color 0.3s;
+    }
+
+    .input-group input:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+
+    .run-all-button {
+      width: 100%;
+      padding: 16px;
+      background: linear-gradient(135deg, #28a745, #20c997);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 18px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-top: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .run-all-button:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(40, 167, 69, 0.4);
+    }
+
+    .run-all-button:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+    }
+
+    .summary {
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
+      padding: 24px;
+      border-radius: 12px;
+      margin-top: 32px;
+      text-align: center;
+    }
+
+    .summary h3 {
+      font-size: 24px;
+      margin-bottom: 16px;
+    }
+
+    .summary-stats {
+      display: flex;
+      justify-content: space-around;
+      margin-top: 16px;
+    }
+
+    .stat {
+      text-align: center;
+    }
+
+    .stat-value {
+      font-size: 32px;
+      font-weight: 700;
+      display: block;
+    }
+
+    .stat-label {
+      font-size: 14px;
+      opacity: 0.9;
+    }
+
+    .config-info {
+      background: #e7f3ff;
+      padding: 16px;
+      border-radius: 8px;
+      margin-bottom: 24px;
+      border-left: 4px solid #2196f3;
+    }
+
+    .config-info h4 {
+      color: #1565c0;
+      margin-bottom: 8px;
+    }
+
+    .config-info code {
+      background: white;
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: 'Courier New', monospace;
+      color: #d63384;
+    }
+
+    .footer {
+      text-align: center;
+      padding: 24px;
+      color: #666;
+      font-size: 14px;
+    }
+
+    .spinner {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <h1>
+        <span>🔗</span>
+        SPMS Connection Test
+      </h1>
+      <p>Test your frontend connection to the SPMS backend API</p>
+    </div>
+
+    <!-- Content -->
+    <div class="content">
+      <!-- Configuration Info -->
+      <div class="config-info">
+        <h4>📋 Current Configuration</h4>
+        <div>API URL: <code id="configApiUrl">http://127.0.0.1:8000</code></div>
+        <div>API Version: <code id="configApiVersion">/api/v1</code></div>
+        <div>Login Endpoint: <code id="configLoginEndpoint">/api/v1/auth/login</code></div>
+      </div>
+
+      <!-- Test 1: Basic Connection -->
+      <div class="test-section" id="test1">
+        <div class="test-header">
+          <div class="test-title">1️⃣ Basic Connection</div>
+          <span class="status-badge pending">Pending</span>
+        </div>
+        <div class="test-description">
+          Tests if the backend server is running and accessible.
+        </div>
+        <button class="test-button" onclick="runTest1()">
+          Test Root Endpoint
+        </button>
+        <div class="test-result" id="result1"></div>
+      </div>
+
+      <!-- Test 2: Health Check -->
+      <div class="test-section" id="test2">
+        <div class="test-header">
+          <div class="test-title">2️⃣ Health Check</div>
+          <span class="status-badge pending">Pending</span>
+        </div>
+        <div class="test-description">
+          Verifies the health endpoint and database connection status.
+        </div>
+        <button class="test-button" onclick="runTest2()">
+          Test Health Endpoint
+        </button>
+        <div class="test-result" id="result2"></div>
+      </div>
+
+      <!-- Test 3: Authentication -->
+      <div class="test-section" id="test3">
+        <div class="test-header">
+          <div class="test-title">3️⃣ Authentication Test</div>
+          <span class="status-badge pending">Pending</span>
+        </div>
+        <div class="test-description">
+          Tests the login endpoint with provided credentials.
+        </div>
+        <div class="input-group">
+          <label for="username">Username</label>
+          <input type="text" id="username" value="admin" placeholder="Enter username">
+        </div>
+        <div class="input-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" value="admin123" placeholder="Enter password">
+        </div>
+        <button class="test-button" onclick="runTest3()">
+          Test Login
+        </button>
+        <div class="test-result" id="result3"></div>
+      </div>
+
+      <!-- Test 4: Authenticated Request -->
+      <div class="test-section" id="test4">
+        <div class="test-header">
+          <div class="test-title">4️⃣ Authenticated Request</div>
+          <span class="status-badge pending">Pending</span>
+        </div>
+        <div class="test-description">
+          Tests accessing a protected endpoint using the authentication token.
+        </div>
+        <div class="test-result info">
+          💡 Complete the login test first to enable this test
+        </div>
+        <button class="test-button" onclick="runTest4()" disabled id="test4Button">
+          Test Protected Endpoint
+        </button>
+        <div class="test-result" id="result4"></div>
+      </div>
+
+      <!-- Run All Tests Button -->
+      <button class="run-all-button" onclick="runAllTests()" id="runAllBtn">
+        <span>🚀</span>
+        Run All Tests
+      </button>
+
+      <!-- Summary -->
+      <div class="summary" id="summary" style="display: none;">
+        <h3>Test Results Summary</h3>
+        <div class="summary-stats">
+          <div class="stat">
+            <span class="stat-value" id="passedCount">0</span>
+            <span class="stat-label">Passed</span>
+          </div>
+          <div class="stat">
+            <span class="stat-value" id="failedCount">0</span>
+            <span class="stat-label">Failed</span>
+          </div>
+          <div class="stat">
+            <span class="stat-value" id="totalCount">4</span>
+            <span class="stat-label">Total</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+      <p><strong>SPMS</strong> - Smart Participants Management System</p>
+      <p style="margin-top: 8px; font-size: 12px;">
+        Support: oakalees@yahoo.com | +256 773 965 088
+      </p>
+    </div>
+  </div>
+
+  <script>
+    // Configuration
+    const CONFIG = {
+      API_URL: 'http://127.0.0.1:8000',
+      API_VERSION: '/api/v1',
+      TIMEOUT: 10000
+    };
+
+    // Update config display
+    document.getElementById('configApiUrl').textContent = CONFIG.API_URL;
+    document.getElementById('configApiVersion').textContent = CONFIG.API_VERSION;
+    document.getElementById('configLoginEndpoint').textContent = `${CONFIG.API_VERSION}/auth/login`;
+
+    // Store token
+    let authToken = null;
+
+    // Helper functions
+    function updateStatus(testId, status) {
+      const section = document.getElementById(testId);
+      const badge = section.querySelector('.status-badge');
+      
+      section.classList.remove('passed', 'failed', 'pending');
+      badge.classList.remove('passed', 'failed', 'pending', 'testing');
+      
+      if (status === 'testing') {
+        badge.classList.add('testing');
+        badge.textContent = 'Testing...';
+      } else if (status === 'passed') {
+        section.classList.add('passed');
+        badge.classList.add('passed');
+        badge.textContent = '✓ Passed';
+      } else if (status === 'failed') {
+        section.classList.add('failed');
+        badge.classList.add('failed');
+        badge.textContent = '✗ Failed';
+      } else {
+        section.classList.add('pending');
+        badge.classList.add('pending');
+        badge.textContent = 'Pending';
+      }
+    }
+
+    function showResult(resultId, message, type) {
+      const result = document.getElementById(resultId);
+      result.className = `test-result ${type} show`;
+      result.textContent = message;
+    }
+
+    function hideResult(resultId) {
+      const result = document.getElementById(resultId);
+      result.classList.remove('show');
+    }
+
+    // Test 1: Basic Connection
+    async function runTest1() {
+      console.log('Running Test 1: Basic Connection');
+      updateStatus('test1', 'testing');
+      hideResult('result1');
+
+      try {
+        const response = await fetch(`${CONFIG.API_URL}/`, {
+          method: 'GET',
+          signal: AbortSignal.timeout(CONFIG.TIMEOUT)
+        });
+
+        const data = await response.json();
+        console.log('Test 1 Response:', data);
+
+        if (response.ok && data.status === 'running') {
+          updateStatus('test1', 'passed');
+          showResult('result1', 
+            `✓ Success! Server is running.\n` +
+            `Version: ${data.version}\n` +
+            `Environment: ${data.environment}`,
+            'success'
+          );
+          return true;
+        } else {
+          throw new Error('Server not responding correctly');
+        }
+      } catch (error) {
+        console.error('Test 1 Failed:', error);
+        updateStatus('test1', 'failed');
+        showResult('result1', 
+          `✗ Error: ${error.message}\n\n` +
+          `Make sure the backend server is running:\n` +
+          `python -m uvicorn backend.main:app --reload --port 8000`,
+          'error'
+        );
+        return false;
+      }
+    }
+
+    // Test 2: Health Check
+    async function runTest2() {
+      console.log('Running Test 2: Health Check');
+      updateStatus('test2', 'testing');
+      hideResult('result2');
+
+      try {
+        const response = await fetch(`${CONFIG.API_URL}/health`, {
+          method: 'GET',
+          signal: AbortSignal.timeout(CONFIG.TIMEOUT)
+        });
+
+        const data = await response.json();
+        console.log('Test 2 Response:', data);
+
+        if (response.ok) {
+          const dbStatus = data.checks?.database?.status || 'unknown';
+          const appStatus = data.checks?.application?.status || 'unknown';
+          
+          updateStatus('test2', 'passed');
+          showResult('result2',
+            `✓ Health check passed!\n` +
+            `Status: ${data.status}\n` +
+            `Database: ${dbStatus}\n` +
+            `Application: ${appStatus}\n` +
+            `Version: ${data.version}`,
+            'success'
+          );
+          return true;
+        } else {
+          throw new Error(`HTTP ${response.status}: ${data.detail || 'Unknown error'}`);
+        }
+      } catch (error) {
+        console.error('Test 2 Failed:', error);
+        updateStatus('test2', 'failed');
+        showResult('result2', `✗ Error: ${error.message}`, 'error');
+        return false;
+      }
+    }
+
+    // Test 3: Authentication
+    async function runTest3() {
+      console.log('Running Test 3: Authentication');
+      updateStatus('test3', 'testing');
+      hideResult('result3');
+
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+
+      if (!username || !password) {
+        updateStatus('test3', 'failed');
+        showResult('result3', '✗ Please enter both username and password', 'error');
+        return false;
+      }
+
+      try {
+        const formData = new FormData();
+        formData.append('username', username);
+        formData.append('password', password);
+
+        const response = await fetch(`${CONFIG.API_URL}${CONFIG.API_VERSION}/auth/login`, {
+          method: 'POST',
+          body: formData
+        });
+
+        const data = await response.json();
+        console.log('Test 3 Response:', data);
+
+        if (response.ok && data.access_token) {
+          authToken = data.access_token;
+          
+          updateStatus('test3', 'passed');
+          showResult('result3',
+            `✓ Login successful!\n` +
+            `Token received: ${authToken.substring(0, 30)}...\n` +
+            `Token type: ${data.token_type}`,
+            'success'
+          );
+          
+          // Enable test 4
+          document.getElementById('test4Button').disabled = false;
+          return true;
+        } else {
+          throw new Error(data.detail || 'Login failed');
+        }
+      } catch (error) {
+        console.error('Test 3 Failed:', error);
+        updateStatus('test3', 'failed');
+        showResult('result3',
+          `✗ Login failed: ${error.message}\n\n` +
+          `Check credentials:\n` +
+          `Default: admin / admin123`,
+          'error'
+        );
+        return false;
+      }
+    }
+
+    // Test 4: Authenticated Request
+    async function runTest4() {
+      console.log('Running Test 4: Authenticated Request');
+      updateStatus('test4', 'testing');
+      hideResult('result4');
+
+      if (!authToken) {
+        updateStatus('test4', 'failed');
+        showResult('result4', '✗ No authentication token. Please complete login test first.', 'error');
+        return false;
+      }
+
+      try {
+        const response = await fetch(`${CONFIG.API_URL}${CONFIG.API_VERSION}/auth/me`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${authToken}`,
+            'Content-Type': 'application/json'
+          }
+        });
+
+        const data = await response.json();
+        console.log('Test 4 Response:', data);
+
+        if (response.ok) {
+          updateStatus('test4', 'passed');
+          showResult('result4',
+            `✓ Protected endpoint access successful!\n` +
+            `Username: ${data.username}\n` +
+            `Role: ${data.role}\n` +
+            `Email: ${data.email || 'N/A'}\n` +
+            `Status: ${data.status}`,
+            'success'
+          );
+          return true;
+        } else {
+          throw new Error(data.detail || 'Request failed');
+        }
+      } catch (error) {
+        console.error('Test 4 Failed:', error);
+        updateStatus('test4', 'failed');
+        showResult('result4', `✗ Error: ${error.message}`, 'error');
+        return false;
+      }
+    }
+
+    // Run all tests
+    async function runAllTests() {
+      console.log('═══════════════════════════════════════════════');
+      console.log('Running All Tests');
+      console.log('═══════════════════════════════════════════════');
+      
+      const runAllBtn = document.getElementById('runAllBtn');
+      runAllBtn.disabled = true;
+      runAllBtn.innerHTML = '<span class="spinner"></span> Running Tests...';
+
+      let passed = 0;
+      let failed = 0;
+
+      // Test 1
+      if (await runTest1()) passed++; else failed++;
+      await sleep(500);
+
+      // Test 2
+      if (await runTest2()) passed++; else failed++;
+      await sleep(500);
+
+      // Test 3
+      if (await runTest3()) passed++; else failed++;
+      await sleep(500);
+
+      // Test 4 (only if test 3 passed)
+      if (authToken) {
+        if (await runTest4()) passed++; else failed++;
+      } else {
+        failed++;
+      }
+
+      // Show summary
+      document.getElementById('passedCount').textContent = passed;
+      document.getElementById('failedCount').textContent = failed;
+      document.getElementById('summary').style.display = 'block';
+
+      runAllBtn.disabled = false;
+      runAllBtn.innerHTML = '<span>🚀</span> Run All Tests';
+
+      console.log('═══════════════════════════════════════════════');
+      console.log(`Tests Complete: ${passed} passed, ${failed} failed`);
+      console.log('═══════════════════════════════════════════════');
+    }
+
+    // Helper: sleep
+    function sleep(ms) {
+      return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    // Auto-check connection on load
+    window.addEventListener('load', async () => {
+      console.log('Page loaded - Checking basic connection...');
+      await runTest1();
+    });
+  </script>
+
+</body>
+</html>

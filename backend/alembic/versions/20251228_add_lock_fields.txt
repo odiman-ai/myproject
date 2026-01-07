@@ -1,0 +1,83 @@
+"""add lock fields (failed_login_attempts, account_locked_until) or rename legacy columns
+
+Revision ID: 20251228_add_lock_fields
+Revises: <previous_revision_id>
+Create Date: 2025-12-28 00:00:00.000000
+"""
+from alembic import op
+import sqlalchemy as sa
+from sqlalchemy import inspect
+
+# revision identifiers, used by Alembic.
+revision = "20251228_add_lock_fields"
+down_revision = "<previous_revision_id>"
+branch_labels = None
+depends_on = None
+
+
+def upgrade():
+    bind = op.get_bind()
+    inspector = inspect(bind)
+    # table name - adjust if your users table is named differently
+    table_name = "users"
+    cols = {c["name"] for c in inspector.get_columns(table_name)}
+
+    # failed_login_attempts: either rename legacy failed_attempts -> new name, or add column
+    if "failed_login_attempts" not in cols:
+        if "failed_attempts" in cols:
+            op.alter_column(table_name, "failed_attempts", new_column_name="failed_login_attempts")
+        else:
+            op.add_column(
+                table_name,
+                sa.Column(
+                    "failed_login_attempts",
+                    sa.Integer(),
+                    nullable=False,
+                    server_default=sa.text("0"),
+                ),
+            )
+
+    # account_locked_until: either rename legacy locked_until -> new name, or add column
+    if "account_locked_until" not in cols:
+        if "locked_until" in cols:
+            op.alter_column(table_name, "locked_until", new_column_name="account_locked_until")
+        else:
+            op.add_column(
+                table_name,
+                sa.Column(
+                    "account_locked_until",
+                    sa.DateTime(timezone=True),
+                    nullable=True,
+                ),
+            )
+
+
+def downgrade():
+    bind = op.get_bind()
+    inspector = inspect(bind)
+    table_name = "users"
+    cols = {c["name"] for c in inspector.get_columns(table_name)}
+
+    # reverse add/rename for account_locked_until
+    if "account_locked_until" in cols:
+        # If legacy column existed and was renamed in upgrade, we can't know original intent.
+        # Default downgrade: drop the new column if legacy name not present.
+        if "locked_until" not in cols:
+            op.drop_column(table_name, "account_locked_until")
+        else:
+            # if both exist (unlikely), prefer to keep locked_until as-is
+            try:
+                op.alter_column(table_name, "account_locked_until", new_column_name="locked_until")
+            except Exception:
+                # best-effort; skip on error
+                pass
+
+    # reverse add/rename for failed_login_attempts
+    if "failed_login_attempts" in cols:
+        if "failed_attempts" not in cols:
+            op.drop_column(table_name, "failed_login_attempts")
+        else:
+            try:
+                op.alter_column(table_name, "failed_login_attempts", new_column_name="failed_attempts")
+            except Exception:
+                pass

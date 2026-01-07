@@ -1,0 +1,45 @@
+services:
+  - type: web
+    name: spms-backend
+    runtime: python
+    region: oregon  # or singapore for closer to Uganda
+    plan: free  # or starter for production
+    branch: main
+    buildCommand: pip install --upgrade pip && pip install -r requirements.txt
+    startCommand: gunicorn backend.main:app --workers 2 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:$PORT --timeout 120 --access-logfile - --error-logfile -
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: SPMS_ENV
+        value: production
+      - key: LOG_LEVEL
+        value: INFO
+      - key: SECRET_KEY
+        generateValue: true
+      - key: ALGORITHM
+        value: HS256
+      - key: ACCESS_TOKEN_EXPIRE_MINUTES
+        value: 30
+      - key: DATABASE_URL
+        fromDatabase:
+          name: spms-database
+          property: connectionString
+      - key: SPMS_CORS_ORIGINS
+        value: "*"  # Change to your frontend URL later
+
+databases:
+  - name: spms-database
+    databaseName: spms_db
+    user: spms_user
+    plan: free  # or starter for production
+    region: oregon  # same as web service
+```
+
+**`Procfile`** (Alternative if not using render.yaml)
+```
+web: gunicorn backend.main:app --workers 2 --worker-class uvicorn.workers.UvicornWorker --bind 0.0.0.0:$PORT --timeout 120
+```
+
+**`runtime.txt`**
+```
+python-3.11.0

@@ -1,0 +1,21 @@
+{
+  "name": "SPMS - Smart Participants Management System",
+  "short_name": "SPMS",
+  "description": "Humanitarian Social Protection Management",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0b6e6b",
+  "icons": [
+    {
+      "src": "src/images/logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "src/images/logo.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

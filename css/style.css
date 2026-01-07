@@ -1,0 +1,151 @@
+/* ================================
+   SPMS BRAND COLORS
+================================ */
+:root {
+  --spms-blue: #1e88e5;
+  --spms-green: #43a047;
+  --spms-orange: #fb8c00;
+  --dark-text: #2c2c2c;
+}
+
+/* ================================
+   GLOBAL STYLES
+================================ */
+* {
+  box-sizing: border-box;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+body {
+  margin: 0;
+  background: #f5f7fa;
+  color: var(--dark-text);
+}
+
+/* ================================
+   LOGO RESPONSIVE SIZES
+================================ */
+.logo {
+  max-width: 100%;
+  height: auto;
+}
+
+.logo-login {
+  width: clamp(90px, 18vw, 140px);
+}
+
+.logo-nav {
+  width: clamp(35px, 5vw, 45px);
+}
+
+.logo-dashboard {
+  width: clamp(80px, 15vw, 120px);
+}
+
+/* ================================
+   LOGIN ANIMATION
+================================ */
+@keyframes logoFadeSlide {
+  from {
+    opacity: 0;
+    transform: translateY(-15px) scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.animate-login-logo {
+  animation: logoFadeSlide 0.9s ease-out forwards;
+}
+
+/* ================================
+   LOGIN PAGE
+================================ */
+.login-container {
+  width: 100%;
+  max-width: 380px;
+  margin: 80px auto;
+  padding: 30px;
+  text-align: center;
+  background: white;
+  border-radius: 10px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+}
+
+.login-container h2 {
+  color: var(--spms-blue);
+  margin-bottom: 20px;
+}
+
+.login-container input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+.login-container button {
+  width: 100%;
+  padding: 10px;
+  border: none;
+  border-radius: 6px;
+  background: linear-gradient(
+    to right,
+    var(--spms-blue),
+    var(--spms-green)
+  );
+  color: white;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+.login-container button:hover {
+  opacity: 0.9;
+}
+
+/* ================================
+   NAVBAR
+================================ */
+.navbar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: var(--spms-blue);
+  padding: 12px 20px;
+  color: white;
+}
+
+.nav-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.nav-right a {
+  color: white;
+  text-decoration: none;
+  margin-left: 15px;
+}
+
+.nav-right a:hover {
+  text-decoration: underline;
+}
+
+/* ================================
+   DASHBOARD
+================================ */
+.dashboard-header {
+  text-align: center;
+  margin-top: 40px;
+}
+
+.dashboard-header h1 {
+  color: var(--spms-green);
+}
+
+.dashboard-header p {
+  color: #555;
+}

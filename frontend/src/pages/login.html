@@ -1,0 +1,878 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="SPMS - Smart Participants Management System Login">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  
+  <title>SPMS Login - Smart Participants Management System</title>
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="src/images/logo.png">
+  <link rel="apple-touch-icon" href="src/images/logo.png">
+
+  <!-- Preconnect to API server for faster requests -->
+  <link rel="preconnect" href="http://127.0.0.1:8000">
+
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --primary-color: #0b6e6b;
+      --primary-hover: #095a58;
+      --error-bg: #fee;
+      --error-color: #c33;
+      --success-bg: #efe;
+      --success-color: #3c3;
+      --warning-bg: #fff3cd;
+      --warning-color: #856404;
+      --bg-color: #f5f7fa;
+      --card-bg: #ffffff;
+      --text-color: #333;
+      --border-color: #ccc;
+      --disabled-bg: #ccc;
+      --shadow: 0 4px 12px rgba(0,0,0,0.1);
+      --shadow-hover: 0 6px 16px rgba(0,0,0,0.15);
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px;
+      color: var(--text-color);
+    }
+
+    .login-container {
+      max-width: 420px;
+      width: 100%;
+      padding: 40px;
+      background-color: var(--card-bg);
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+      text-align: center;
+      animation: fadeIn 0.5s ease-in;
+      transition: box-shadow 0.3s ease;
+    }
+
+    .login-container:hover {
+      box-shadow: var(--shadow-hover);
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .logo-container {
+      margin-bottom: 24px;
+    }
+
+    .logo {
+      max-width: 160px;
+      height: auto;
+      transition: transform 0.3s ease;
+    }
+
+    .logo:hover {
+      transform: scale(1.05);
+    }
+
+    h2 {
+      margin-bottom: 8px;
+      color: var(--primary-color);
+      font-size: 28px;
+      font-weight: 600;
+    }
+
+    .subtitle {
+      color: #666;
+      font-size: 14px;
+      margin-bottom: 32px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+      text-align: left;
+    }
+
+    .form-label {
+      display: block;
+      margin-bottom: 8px;
+      color: var(--text-color);
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .input-wrapper {
+      position: relative;
+    }
+
+    input[type="text"],
+    input[type="password"] {
+      width: 100%;
+      padding: 14px 16px;
+      border: 2px solid var(--border-color);
+      border-radius: 8px;
+      font-size: 16px;
+      transition: all 0.3s ease;
+      background-color: #fafafa;
+    }
+
+    input[type="text"]:focus,
+    input[type="password"]:focus {
+      outline: none;
+      border-color: var(--primary-color);
+      background-color: white;
+      box-shadow: 0 0 0 3px rgba(11, 110, 107, 0.1);
+    }
+
+    input[type="text"]::placeholder,
+    input[type="password"]::placeholder {
+      color: #999;
+    }
+
+    .password-toggle {
+      position: absolute;
+      right: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: #666;
+      padding: 4px;
+      font-size: 18px;
+      transition: color 0.3s ease;
+    }
+
+    .password-toggle:hover {
+      color: var(--primary-color);
+    }
+
+    .remember-forgot {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+      font-size: 14px;
+    }
+
+    .remember-me {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .remember-me input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+    }
+
+    .forgot-password {
+      color: var(--primary-color);
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
+
+    .forgot-password:hover {
+      color: var(--primary-hover);
+      text-decoration: underline;
+    }
+
+    button {
+      width: 100%;
+      padding: 14px;
+      background: linear-gradient(135deg, var(--primary-color), var(--primary-hover));
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    button::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 0;
+      height: 0;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.3);
+      transform: translate(-50%, -50%);
+      transition: width 0.6s, height 0.6s;
+    }
+
+    button:hover::before {
+      width: 300px;
+      height: 300px;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(11, 110, 107, 0.3);
+    }
+
+    button:active {
+      transform: translateY(0);
+    }
+
+    button:disabled {
+      background: var(--disabled-bg);
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    button:disabled::before {
+      display: none;
+    }
+
+    .visually-hidden {
+      position: absolute;
+      left: -10000px;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+    }
+
+    .message {
+      padding: 14px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      font-size: 14px;
+      display: none;
+      animation: slideDown 0.3s ease;
+      text-align: left;
+    }
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-10px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .error-message {
+      background-color: var(--error-bg);
+      color: var(--error-color);
+      border-left: 4px solid var(--error-color);
+    }
+
+    .success-message {
+      background-color: var(--success-bg);
+      color: var(--success-color);
+      border-left: 4px solid var(--success-color);
+    }
+
+    .warning-message {
+      background-color: var(--warning-bg);
+      color: var(--warning-color);
+      border-left: 4px solid var(--warning-color);
+    }
+
+    .loading {
+      display: none;
+      margin-top: 16px;
+      color: var(--primary-color);
+      font-size: 14px;
+    }
+
+    .loading-spinner {
+      display: inline-block;
+      width: 16px;
+      height: 16px;
+      border: 2px solid rgba(11, 110, 107, 0.3);
+      border-radius: 50%;
+      border-top-color: var(--primary-color);
+      animation: spin 0.8s linear infinite;
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .footer {
+      margin-top: 24px;
+      padding-top: 24px;
+      border-top: 1px solid #eee;
+      font-size: 12px;
+      color: #999;
+    }
+
+    .version {
+      margin-top: 8px;
+      font-size: 11px;
+    }
+
+    .support-info {
+      margin-top: 16px;
+      text-align: left;
+    }
+
+    .support-info summary {
+      cursor: pointer;
+      color: var(--primary-color);
+      font-weight: 500;
+      padding: 8px;
+      border-radius: 4px;
+      transition: background-color 0.3s ease;
+      list-style: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .support-info summary::-webkit-details-marker {
+      display: none;
+    }
+
+    .support-info summary::before {
+      content: '💬';
+      font-size: 16px;
+    }
+
+    .support-info summary:hover {
+      background-color: rgba(11, 110, 107, 0.1);
+    }
+
+    .support-info[open] summary::before {
+      content: '📞';
+    }
+
+    .support-details {
+      margin-top: 12px;
+      padding: 16px;
+      background-color: #f9f9f9;
+      border-radius: 8px;
+      border-left: 4px solid var(--primary-color);
+      animation: slideDown 0.3s ease;
+    }
+
+    .support-details p {
+      margin: 8px 0;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .support-details strong {
+      color: var(--primary-color);
+      font-size: 14px;
+    }
+
+    .support-details a {
+      color: var(--primary-color);
+      text-decoration: none;
+      transition: color 0.3s ease;
+    }
+
+    .support-details a:hover {
+      color: var(--primary-hover);
+      text-decoration: underline;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 480px) {
+      .login-container {
+        padding: 28px 20px;
+      }
+
+      h2 {
+        font-size: 24px;
+      }
+
+      .remember-forgot {
+        flex-direction: column;
+        gap: 12px;
+        align-items: flex-start;
+      }
+    }
+
+    /* Dark mode support */
+    @media (prefers-color-scheme: dark) {
+      body {
+        background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+      }
+
+      .login-container {
+        background-color: #2d3748;
+        color: #e2e8f0;
+      }
+
+      input[type="text"],
+      input[type="password"] {
+        background-color: #1a202c;
+        color: #e2e8f0;
+        border-color: #4a5568;
+      }
+
+      input[type="text"]:focus,
+      input[type="password"]:focus {
+        background-color: #2d3748;
+      }
+
+      .subtitle,
+      .footer {
+        color: #a0aec0;
+      }
+
+      .support-details {
+        background-color: #1a202c;
+      }
+    }
+
+    /* Accessibility improvements */
+    .skip-link {
+      position: absolute;
+      top: -40px;
+      left: 0;
+      background: var(--primary-color);
+      color: white;
+      padding: 8px;
+      text-decoration: none;
+      z-index: 100;
+    }
+
+    .skip-link:focus {
+      top: 0;
+    }
+
+    /* Print styles */
+    @media print {
+      body {
+        background: white;
+      }
+      
+      .login-container {
+        box-shadow: none;
+      }
+      
+      button,
+      .forgot-password {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Skip to main content for accessibility -->
+  <a href="#loginForm" class="skip-link">Skip to login form</a>
+
+  <div class="login-container" role="main">
+    <!-- Logo -->
+    <div class="logo-container">
+      <picture>
+        <source srcset="src/images/logo.webp" type="image/webp">
+        <source srcset="src/images/logo.png" type="image/png">
+        <img src="src/images/logo.png"
+             id="logo"
+             class="logo"
+             alt="SPMS Logo"
+             loading="eager"
+             onerror="this.onerror=null; this.src='src/images/default-logo.png';">
+      </picture>
+    </div>
+
+    <h2>Welcome Back</h2>
+    <p class="subtitle">Smart Participants Management System</p>
+
+    <!-- Messages -->
+    <div id="errorMessage" class="message error-message" role="alert" aria-live="assertive"></div>
+    <div id="successMessage" class="message success-message" role="status" aria-live="polite"></div>
+    <div id="warningMessage" class="message warning-message" role="alert" aria-live="polite"></div>
+
+    <!-- Login Form -->
+    <form id="loginForm" novalidate>
+      <div class="form-group">
+        <label for="username" class="form-label">Username</label>
+        <input 
+          type="text" 
+          id="username" 
+          name="username" 
+          placeholder="Enter your username" 
+          required 
+          autocomplete="username"
+          aria-required="true"
+          aria-describedby="username-error"
+          minlength="3"
+          maxlength="50"
+        >
+        <span id="username-error" class="visually-hidden"></span>
+      </div>
+
+      <div class="form-group">
+        <label for="password" class="form-label">Password</label>
+        <div class="input-wrapper">
+          <input 
+            type="password" 
+            id="password" 
+            name="password" 
+            placeholder="Enter your password" 
+            required 
+            autocomplete="current-password"
+            aria-required="true"
+            aria-describedby="password-error"
+            minlength="8"
+          >
+          <button 
+            type="button" 
+            class="password-toggle" 
+            id="togglePassword" 
+            aria-label="Toggle password visibility"
+            title="Show/Hide password"
+          >
+            👁️
+          </button>
+        </div>
+        <span id="password-error" class="visually-hidden"></span>
+      </div>
+
+      <div class="remember-forgot">
+        <label class="remember-me">
+          <input type="checkbox" id="rememberMe" name="rememberMe">
+          <span>Remember me</span>
+        </label>
+        <a href="forgot-password.html" class="forgot-password">Forgot password?</a>
+      </div>
+
+      <button type="submit" id="loginBtn" aria-label="Submit login form">
+        Login
+      </button>
+      
+      <div class="loading" id="loading" role="status" aria-live="polite">
+        <span class="loading-spinner"></span>
+        Logging in...
+      </div>
+    </form>
+
+    <footer class="footer">
+      <p>&copy; 2024 SPMS. All rights reserved.</p>
+      <p class="version" id="apiStatus">Checking server status...</p>
+      <details class="support-info">
+        <summary>Need Help? Contact Support</summary>
+        <div class="support-details">
+          <p><strong>Engineer Simon Akalees Odiman</strong></p>
+          <p>📧 <a href="mailto:oakalees@yahoo.com">oakalees@yahoo.com</a></p>
+          <p>📱 <a href="tel:+256773965088">+256 773 965 088</a> / <a href="tel:+256755002896">+256 755 002 896</a></p>
+          <p>📍 Kampala, Uganda</p>
+        </div>
+      </details>
+    </footer>
+  </div>
+
+  <script>
+    // Configuration
+    const CONFIG = {
+      API_URL: 'http://127.0.0.1:8000',
+      API_VERSION: '/api/v1',
+      LOGIN_ENDPOINT: '/auth/login',
+      DASHBOARD_URL: 'dashboard.html',
+      TOKEN_KEY: 'access_token',
+      TOKEN_TYPE_KEY: 'token_type',
+      USERNAME_KEY: 'username',
+      REMEMBER_KEY: 'remember_me'
+    };
+
+    // Utility functions
+    const $ = (id) => document.getElementById(id);
+    const show = (el) => el.style.display = 'block';
+    const hide = (el) => el.style.display = 'none';
+
+    // Elements
+    const elements = {
+      form: $('loginForm'),
+      username: $('username'),
+      password: $('password'),
+      loginBtn: $('loginBtn'),
+      togglePassword: $('togglePassword'),
+      rememberMe: $('rememberMe'),
+      loading: $('loading'),
+      errorMessage: $('errorMessage'),
+      successMessage: $('successMessage'),
+      warningMessage: $('warningMessage'),
+      apiStatus: $('apiStatus')
+    };
+
+    // Message display functions
+    function showMessage(element, message) {
+      element.textContent = message;
+      show(element);
+      setTimeout(() => hide(element), 5000);
+    }
+
+    function showError(message) {
+      hide(elements.successMessage);
+      hide(elements.warningMessage);
+      showMessage(elements.errorMessage, message);
+    }
+
+    function showSuccess(message) {
+      hide(elements.errorMessage);
+      hide(elements.warningMessage);
+      showMessage(elements.successMessage, message);
+    }
+
+    function showWarning(message) {
+      hide(elements.errorMessage);
+      hide(elements.successMessage);
+      showMessage(elements.warningMessage, message);
+    }
+
+    function hideAllMessages() {
+      hide(elements.errorMessage);
+      hide(elements.successMessage);
+      hide(elements.warningMessage);
+    }
+
+    // Password visibility toggle
+    elements.togglePassword.addEventListener('click', () => {
+      const type = elements.password.type === 'password' ? 'text' : 'password';
+      elements.password.type = type;
+      elements.togglePassword.textContent = type === 'password' ? '👁️' : '🙈';
+      elements.togglePassword.setAttribute('aria-label', 
+        type === 'password' ? 'Show password' : 'Hide password'
+      );
+    });
+
+    // Check server status
+    async function checkServerStatus() {
+      try {
+        const response = await fetch(`${CONFIG.API_URL}${CONFIG.API_VERSION}/health`, {
+          method: 'GET',
+          signal: AbortSignal.timeout(5000)
+        });
+        const data = await response.json();
+        
+        if (response.ok && data.status === 'healthy') {
+          elements.apiStatus.textContent = `✓ Server online | v${data.version || '1.0.0'}`;
+          elements.apiStatus.style.color = '#3c3';
+        } else {
+          elements.apiStatus.textContent = '⚠ Server degraded';
+          elements.apiStatus.style.color = '#f90';
+        }
+      } catch (error) {
+        elements.apiStatus.textContent = '✗ Server offline - Please contact support';
+        elements.apiStatus.style.color = '#c33';
+        showWarning('⚠ Cannot connect to server. Please ensure the backend is running.');
+      }
+    }
+
+    // Form validation
+    function validateForm() {
+      const username = elements.username.value.trim();
+      const password = elements.password.value;
+
+      if (!username) {
+        showError('Username is required');
+        elements.username.focus();
+        return false;
+      }
+
+      if (username.length < 3) {
+        showError('Username must be at least 3 characters');
+        elements.username.focus();
+        return false;
+      }
+
+      if (!password) {
+        showError('Password is required');
+        elements.password.focus();
+        return false;
+      }
+
+      if (password.length < 8) {
+        showError('Password must be at least 8 characters');
+        elements.password.focus();
+        return false;
+      }
+
+      return true;
+    }
+
+    // Handle login
+    async function handleLogin(e) {
+      e.preventDefault();
+
+      // Validate form
+      if (!validateForm()) {
+        return;
+      }
+
+      const username = elements.username.value.trim();
+      const password = elements.password.value;
+
+      // UI feedback
+      hideAllMessages();
+      show(elements.loading);
+      elements.loginBtn.disabled = true;
+      elements.loginBtn.textContent = 'Logging in...';
+
+      try {
+        // Create FormData for OAuth2 password flow
+        const formData = new FormData();
+        formData.append('username', username);
+        formData.append('password', password);
+
+        // Call backend API
+        const response = await fetch(
+          `${CONFIG.API_URL}${CONFIG.API_VERSION}${CONFIG.LOGIN_ENDPOINT}`,
+          {
+            method: 'POST',
+            body: formData,
+            signal: AbortSignal.timeout(10000) // 10 second timeout
+          }
+        );
+
+        const data = await response.json();
+
+        if (response.ok) {
+          // Store token
+          localStorage.setItem(CONFIG.TOKEN_KEY, data.access_token);
+          localStorage.setItem(CONFIG.TOKEN_TYPE_KEY, data.token_type || 'bearer');
+          
+          // Store username if remember me is checked
+          if (elements.rememberMe.checked) {
+            localStorage.setItem(CONFIG.USERNAME_KEY, username);
+            localStorage.setItem(CONFIG.REMEMBER_KEY, 'true');
+          } else {
+            localStorage.removeItem(CONFIG.USERNAME_KEY);
+            localStorage.removeItem(CONFIG.REMEMBER_KEY);
+          }
+          
+          // Show success message
+          showSuccess('✓ Login successful! Redirecting...');
+
+          // Log success
+          console.log('✓ Login successful:', {
+            username,
+            token_type: data.token_type,
+            timestamp: new Date().toISOString()
+          });
+
+          // Redirect to dashboard
+          setTimeout(() => {
+            window.location.href = CONFIG.DASHBOARD_URL;
+          }, 1000);
+        } else {
+          // Handle different error scenarios
+          const errorMessage = data.detail || 'Login failed. Please check your credentials.';
+          
+          if (response.status === 403) {
+            showError(`🔒 ${errorMessage}`);
+          } else if (response.status === 401) {
+            showError(`❌ ${errorMessage}`);
+          } else {
+            showError(`⚠ ${errorMessage}`);
+          }
+
+          // Log error for debugging
+          console.error('Login failed:', {
+            status: response.status,
+            message: errorMessage,
+            timestamp: new Date().toISOString()
+          });
+        }
+      } catch (error) {
+        // Network or timeout error
+        if (error.name === 'AbortError') {
+          showError('⏱ Request timeout. Please try again.');
+        } else {
+          showError('⚠ Cannot connect to server. Please ensure the backend is running.');
+        }
+        
+        console.error('Login error:', error);
+      } finally {
+        // Reset UI
+        hide(elements.loading);
+        elements.loginBtn.disabled = false;
+        elements.loginBtn.textContent = 'Login';
+      }
+    }
+
+    // Check if already logged in
+    function checkExistingSession() {
+      const token = localStorage.getItem(CONFIG.TOKEN_KEY);
+      if (token) {
+        // Verify token is still valid (optional)
+        showSuccess('Already logged in. Redirecting...');
+        setTimeout(() => {
+          window.location.href = CONFIG.DASHBOARD_URL;
+        }, 500);
+      } else {
+        // Check if username should be remembered
+        const rememberMe = localStorage.getItem(CONFIG.REMEMBER_KEY) === 'true';
+        if (rememberMe) {
+          const savedUsername = localStorage.getItem(CONFIG.USERNAME_KEY);
+          if (savedUsername) {
+            elements.username.value = savedUsername;
+            elements.rememberMe.checked = true;
+            elements.password.focus();
+          }
+        }
+      }
+    }
+
+    // Keyboard shortcuts
+    document.addEventListener('keydown', (e) => {
+      // Alt + L to focus login button
+      if (e.altKey && e.key === 'l') {
+        e.preventDefault();
+        elements.loginBtn.focus();
+      }
+    });
+
+    // Event listeners
+    elements.form.addEventListener('submit', handleLogin);
+
+    // Initialize on page load
+    window.addEventListener('load', () => {
+      checkExistingSession();
+      checkServerStatus();
+      
+      // Focus username field if empty
+      if (!elements.username.value) {
+        elements.username.focus();
+      }
+    });
+
+    // Periodic server status check (every 30 seconds)
+    setInterval(checkServerStatus, 30000);
+
+    // Clear sensitive data on page unload (security)
+    window.addEventListener('beforeunload', () => {
+      if (!elements.rememberMe.checked) {
+        elements.password.value = '';
+      }
+    });
+  </script>
+
+</body>
+</html>
