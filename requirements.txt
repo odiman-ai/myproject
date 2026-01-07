@@ -2,6 +2,7 @@
 fastapi==0.127.1
 uvicorn[standard]==0.40.0
 starlette==0.50.0
+gunicorn==22.0.0
 
 # Database & ORM
 SQLAlchemy==2.0.45
@@ -49,6 +50,3 @@ typing-inspection==0.4.2
 typing_extensions==4.15.0
 pycparser==2.23
 cffi==2.0.0
-
-# Production Server (Gunicorn for Render)
-gunicorn==22.0.0
