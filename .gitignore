@@ -1,10 +1,13 @@
-# Environment
+# ────────────────
+# Environment files
+# ────────────────
 .env
-.env.local
-.env.production
+.env.*
 *.env
 
-# Python
+# ────────────────
+# Python artifacts
+# ────────────────
 __pycache__/
 *.py[cod]
 *$py.class
@@ -14,8 +17,7 @@ __pycache__/
 .Python
 env/
 venv/
-.venv/
-.venv311/
+.venv*/
 ENV/
 build/
 dist/
@@ -23,32 +25,44 @@ dist/
 .eggs/
 *.egg
 
+# ────────────────
 # Database (SQLite + temp files)
+# ────────────────
 *.db
 *.sqlite3
 *.sqlite
 *.db-shm
 *.db-wal
 
+# ────────────────
 # Alembic migration cache
+# ────────────────
 alembic/versions/*.pyc
 
-# IDEs
+# ────────────────
+# IDE/editor configs
+# ────────────────
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
 
-# OS
+# ────────────────
+# OS-specific junk
+# ────────────────
 .DS_Store
 Thumbs.db
 desktop.ini
 
+# ────────────────
 # Logs
+# ────────────────
 *.log
 logs/
 
-# Render
+# ────────────────
+# Render deployment artifacts
+# ────────────────
 .render/
 render.yaml
