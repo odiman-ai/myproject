@@ -112,13 +112,18 @@ async def lifespan(app: FastAPI):
         logger.info("✓ Database tables created/verified")
         
         # Create default admin user if doesn't exist
+        # Use direct bcrypt hashing to avoid password length issues
+        from passlib.context import CryptContext
+        pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+        
         db = SessionLocal()
         try:
             admin = db.query(User).filter(User.username == "admin").first()
             if not admin:
+                # Simple password, direct hash - avoids bcrypt 72-byte limit issues
                 admin = User(
                     username="admin",
-                    password_hash=hash_password("admin123", validate_policy=False),
+                    password_hash=pwd_context.hash("admin123"),
                     full_name="System Administrator",
                     email="admin@spms.local",
                     phone="+256773965088",
@@ -402,6 +407,109 @@ def api_info() -> Dict[str, Any]:
             "Token Management",
         ],
     }
+
+
+# -------------------------
+# Setup Endpoints
+# -------------------------
+
+@app.post("/setup/create-admin", tags=["Setup"], summary="Create Admin User")
+def create_admin_user():
+    """
+    One-time admin user creation endpoint.
+    Use this to manually create admin user if auto-creation failed.
+    No authentication required for initial setup.
+    """
+    from passlib.context import CryptContext
+    
+    pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+    
+    db = SessionLocal()
+    try:
+        # Check if admin exists
+        admin = db.query(User).filter(User.username == "admin").first()
+        if admin:
+            return {
+                "status": "info",
+                "message": "Admin user already exists",
+                "username": "admin",
+                "note": "Use /api/v1/auth/login to authenticate"
+            }
+        
+        # Create admin user with simple password
+        admin = User(
+            username="admin",
+            password_hash=pwd_context.hash("admin123"),
+            full_name="System Administrator",
+            email="admin@spms.local",
+            phone="+256773965088",
+            role="admin",
+            status="active"
+        )
+        db.add(admin)
+        db.commit()
+        db.refresh(admin)
+        
+        logger.info("Admin user created via setup endpoint")
+        
+        return {
+            "status": "success",
+            "message": "Admin user created successfully",
+            "credentials": {
+                "username": "admin",
+                "password": "admin123"
+            },
+            "note": "Please change this password after first login",
+            "next_steps": [
+                "Login at /api/v1/auth/login",
+                "Change password via /api/v1/auth/change-password",
+                "Disable this endpoint in production"
+            ]
+        }
+    except Exception as e:
+        db.rollback()
+        logger.exception("Failed to create admin user via setup endpoint")
+        raise HTTPException(
+            status_code=500, 
+            detail=f"Failed to create admin user: {str(e)}"
+        )
+    finally:
+        db.close()
+
+
+@app.get("/setup/check-admin", tags=["Setup"], summary="Check Admin User Status")
+def check_admin_user():
+    """
+    Check if admin user exists in the database.
+    Useful for verifying setup completion.
+    """
+    db = SessionLocal()
+    try:
+        admin = db.query(User).filter(User.username == "admin").first()
+        if admin:
+            return {
+                "status": "exists",
+                "message": "Admin user exists",
+                "username": admin.username,
+                "email": admin.email,
+                "role": admin.role,
+                "status": admin.status,
+                "created_at": admin.created_at.isoformat() if hasattr(admin, 'created_at') else None
+            }
+        else:
+            return {
+                "status": "missing",
+                "message": "Admin user does not exist",
+                "action": "Call POST /setup/create-admin to create it"
+            }
+    except Exception as e:
+        logger.exception("Failed to check admin user")
+        raise HTTPException(
+            status_code=500,
+            detail=f"Database error: {str(e)}"
+        )
+    finally:
+        db.close()
 
 
 # -------------------------
