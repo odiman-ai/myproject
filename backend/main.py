@@ -106,48 +106,45 @@ async def lifespan(app: FastAPI):
     logger.info(f"API Version: {APP_VERSION}")
     logger.info("=" * 60)
     
-    # Create database tables in development
-    if DEBUG_MODE:
+    # Create database tables (WORKS IN BOTH DEV AND PRODUCTION)
+    try:
+        Base.metadata.create_all(bind=engine)
+        logger.info("✓ Database tables created/verified")
+        
+        # Create default admin user if doesn't exist
+        db = SessionLocal()
         try:
-            Base.metadata.create_all(bind=engine)
-            logger.info("✓ Database tables created/verified")
+            admin = db.query(User).filter(User.username == "admin").first()
+            if not admin:
+                admin = User(
+                    username="admin",
+                    password_hash=hash_password("admin123", validate_policy=False),
+                    full_name="System Administrator",
+                    email="admin@spms.local",
+                    phone="+256773965088",
+                    role="admin",
+                    status="active"
+                )
+                db.add(admin)
+                db.commit()
+                logger.info("✓ Default admin user created")
+                logger.info("  Username: admin")
+                logger.info("  Password: admin123")
+            else:
+                logger.info("✓ Admin user already exists")
+                if DEBUG_MODE:
+                    logger.info("  Username: admin")
+                    logger.info("  Password: admin123")
+        except Exception as e:
+            logger.error(f"Error creating admin user: {e}")
+            db.rollback()
+        finally:
+            db.close()
             
-            # Create default admin user if doesn't exist
-            db = SessionLocal()
-            try:
-                admin = db.query(User).filter(User.username == "admin").first()
-                if not admin:
-                    # Use the hash_password function from auth.utils
-                    admin = User(
-                        username="admin",
-                        password_hash=hash_password("admin123", validate_policy=False),
-                        full_name="System Administrator",
-                        email="admin@spms.local",
-                        phone="+256773965088",
-                        role="admin",
-                        status="active"
-                    )
-                    db.add(admin)
-                    db.commit()
-                    logger.info("✓ Default admin user created")
-                    logger.info("  Username: admin")
-                    logger.info("  Password: admin123")
-                else:
-                    logger.info("✓ Admin user exists")
-                    logger.info("  Username: admin")
-                    logger.info("  Password: admin123")
-            except Exception as e:
-                logger.error(f"Error creating admin user: {e}")
-                db.rollback()
-            finally:
-                db.close()
-                
-        except Exception as exc:
-            logger.exception("✗ Error during startup: %s", exc)
-            if not DEBUG_MODE:
-                raise
-    else:
-        logger.info("Production mode: Skipping automatic table creation")
+    except Exception as exc:
+        logger.exception("✗ Error during database initialization: %s", exc)
+        if not DEBUG_MODE:
+            raise
     
     # Verify database connection
     try:
@@ -162,11 +159,22 @@ async def lifespan(app: FastAPI):
     logger.info("✓ SPMS Backend started successfully")
     logger.info("=" * 60)
     
-    yield  # Application runs here
-    
-    # Shutdown
-    logger.info("Shutting down SPMS Backend...")
-    logger.info("✓ SPMS Backend shutdown complete")
+    try:
+        yield  # Application runs here
+    finally:
+        # Shutdown
+        logger.info("=" * 60)
+        logger.info("Shutting down SPMS Backend...")
+        
+        # Close database connections gracefully
+        try:
+            engine.dispose()
+            logger.info("✓ Database connections closed")
+        except Exception as e:
+            logger.error(f"Error closing database connections: {e}")
+        
+        logger.info("✓ SPMS Backend shutdown complete")
+        logger.info("=" * 60)
 
 
 # Create FastAPI app with enhanced configuration
